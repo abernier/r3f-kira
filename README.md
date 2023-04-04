@@ -1,4 +1,4 @@
-Try on: [Codespace](https://github.com/codespaces/new?template_repository=abernier%2Ftpl-react-three) | [StackBlitz](https://stackblitz.com/github/abernier/tpl-react-three)
+Try on: [Codespace](https://github.com/codespaces/new?template_repository=abernier%2Fr3f-kira) | [StackBlitz](https://stackblitz.com/github/abernier/r3f-kira)
 
 # INSTALL
 
