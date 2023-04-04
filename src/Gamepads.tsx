@@ -10,8 +10,18 @@ type Vec2 = { x: number; y: number };
 
 type GamepadsProps = {
   nipples: boolean;
+  sensitivity?: {
+    left: Vec2;
+    right: Vec2;
+  };
 };
-function Gamepads({ nipples = true }: GamepadsProps) {
+function Gamepads({
+  nipples = true,
+  sensitivity = {
+    left: { x: 1 / 5, y: 1 / 5 },
+    right: { x: 1 / 100, y: 1 / 10 },
+  },
+}: GamepadsProps) {
   const leftpadRef = useRef<Vec2>({ x: 0, y: 0 });
   const rightpadRef = useRef<Vec2>({ x: 0, y: 0 });
 
@@ -23,11 +33,6 @@ function Gamepads({ nipples = true }: GamepadsProps) {
   //
   // Update `player` position and rotation
   //
-
-  const sensitivity: { left: Vec2; right: Vec2 } = {
-    left: { x: 1 / 5, y: 1 / 5 },
-    right: { x: 1 / 100, y: 1 / 10 },
-  };
 
   useFrame(() => {
     const leftpad = leftpadRef.current;

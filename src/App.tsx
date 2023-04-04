@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import * as THREE from "three";
+import { useEffect, useState, useMemo, useLayoutEffect } from "react";
 import styled from "@emotion/styled";
 import { Canvas, useThree } from "@react-three/fiber";
-import { useKeyboardControls } from "@react-three/drei";
+import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import { Physics, Debug } from "@react-three/rapier";
 import { XR, Controllers, Hands, VRButton, Interactive } from "@react-three/xr";
 
@@ -16,6 +17,7 @@ function App() {
     <Styled>
       <VRButton />
       <Canvas
+        gl={{ logarithmicDepthBuffer: true }}
         shadows
         // camera={{
         //   position: [0, 15, 5],
@@ -24,7 +26,7 @@ function App() {
         //
       >
         <XR>
-          <Controllers />
+          {/* <Controllers /> */}
           <Hands />
 
           <Physics
@@ -50,33 +52,42 @@ export const Styled = styled.div`
 export default App;
 
 function Scene() {
-  const [clr, setClr] = useState<string | undefined>(undefined);
-  //
-  // ESC key to exit XR
-  //
+  const gltf = useGLTF("https://threejs.org/examples/models/gltf/kira.glb");
 
-  const gl = useThree((state) => state.gl);
-  // gl.xr.setFramebufferScaleFactor(2.0);
+  const OOI = useMemo(() => {
+    const {
+      head,
+      lowerarm_l,
+      Upperarm_l,
+      hand_l,
+      target_hand_l,
+      boule,
+      Kira_Shirt_left,
+    } = gltf.nodes;
+    return {
+      head,
+      lowerarm_l,
+      Upperarm_l,
+      hand_l,
+      target_hand_l,
+      boule,
+      Kira_Shirt_left,
+    };
+  }, [gltf.nodes]);
+  console.log("OOI", OOI);
 
-  const escPressed = useKeyboardControls((state) => state.esc);
-  useEffect(() => {
-    gl.xr.getSession()?.end(); // https://stackoverflow.com/a/71566927/133327
-  }, [escPressed, gl.xr]);
+  useLayoutEffect(() => {
+    gltf.scene.traverse((n) => {
+      console.log(n);
+      if (n instanceof THREE.Mesh) {
+        n.frustumCulled = false; // see: https://stackoverflow.com/a/32876611/133327
+      }
+    });
+  }, [gltf.scene]);
 
   return (
     <>
-      <Interactive
-        onHover={(e) => {
-          console.log("hover");
-          setClr("brown");
-        }}
-        onBlur={(e) => setClr(undefined)}
-      >
-        <Cube position-y={1} color={clr} />
-      </Interactive>
-      <Ball />
-
-      <Rope length={5} position={[3, 1, 0]} />
+      <primitive object={gltf.scene} />
 
       <Ground />
     </>

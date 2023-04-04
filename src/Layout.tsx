@@ -1,7 +1,12 @@
 import { ReactNode, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useXR } from "@react-three/xr";
-import { Environment, PerspectiveCamera } from "@react-three/drei";
+import {
+  Environment,
+  PerspectiveCamera,
+  useKeyboardControls,
+} from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 
 import { useControls, folder } from "leva";
 
@@ -9,11 +14,27 @@ import Gamepads from "./Gamepads";
 
 function Layout({
   children,
-  bg = "#393939",
+  bg = "#ffffff",
 }: {
   children?: ReactNode;
   bg?: string;
 }) {
+  //
+  // ESC key to exit XR
+  //
+
+  const gl = useThree((state) => state.gl);
+  // gl.xr.setFramebufferScaleFactor(2.0);
+
+  const escPressed = useKeyboardControls((state) => state.esc);
+  useEffect(() => {
+    gl.xr.getSession()?.end(); // https://stackoverflow.com/a/71566927/133327
+  }, [escPressed, gl.xr]);
+
+  //
+  //
+  //
+
   const [gui, setGui] = useControls(() => ({
     Layout: folder(
       {
@@ -22,7 +43,10 @@ function Layout({
         axes: true,
         camera: folder({
           fov: 50,
-          player: { value: [7, 4.0, 21.0], step: 0.1 }, // ~= position of the camera (the player holds the camera)
+          player: {
+            value: [0.9728517749133652, 1.1044765132727201, 0.7316689528482836],
+            step: 0.1,
+          }, // ~= position of the camera (the player holds the camera)
           lookAt: {
             value: [0, 0, 0],
             step: 0.1,
@@ -41,7 +65,13 @@ function Layout({
     <>
       <Camera position={gui.player} lookAt={gui.lookAt} fov={gui.fov} />
 
-      <Gamepads nipples={gui.nipples} />
+      <Gamepads
+        nipples={gui.nipples}
+        sensitivity={{
+          left: { x: 1 / 10, y: 1 / 10 },
+          right: { x: 1 / 10, y: 1 / 10 },
+        }}
+      />
 
       <Environment background>
         <mesh scale={100}>
@@ -50,15 +80,15 @@ function Layout({
         </mesh>
       </Environment>
 
-      <spotLight
+      {/* <spotLight
         position={[15, 15, 15]}
         // angle={0.3}
         penumbra={1}
         castShadow
         intensity={2}
         shadow-bias={-0.0001}
-      />
-      <ambientLight intensity={0.2} />
+      /> */}
+      <ambientLight intensity={1} />
 
       {gui.grid && <gridHelper args={[30, 30, 30]} position-y=".01" />}
       {gui.axes && <axesHelper args={[5]} />}
@@ -95,7 +125,7 @@ function Camera({
 
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} fov={fov} makeDefault />
+      <PerspectiveCamera ref={cameraRef} fov={fov} near={0.001} makeDefault />
     </>
   );
 }
