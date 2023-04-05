@@ -139,6 +139,10 @@ function useCubeCamera({
     return fbo;
   }, [resolution, gl.outputEncoding]);
 
+  useEffect(() => {
+    return () => fbo.dispose();
+  }, [fbo]);
+
   const camera = useMemo(
     () => new THREE.CubeCamera(near, far, fbo),
     [near, far, fbo]
