@@ -87,7 +87,7 @@ function Scene() {
   }, [gltf.nodes]);
   console.log("OOI", OOI);
 
-  const { fbo, camera, update } = useCubeCamera({ resolution: 256 });
+  const { fbo, camera, update } = useCubeCamera({ resolution: 1024 });
 
   useFrame(() => {
     OOI.boule.visible = false; // hide sphere before taking cube photos
